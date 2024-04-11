@@ -1,1 +1,1 @@
-# SER502-Scriber-Team9
+# SER502-Striger-Team9
