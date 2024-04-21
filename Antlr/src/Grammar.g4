@@ -1,8 +1,8 @@
 grammar Grammar;
 
-program : initializations   conclusion*   computations   conclusion* ;
+program : initializations   conclusion*   computations   conclusion* | conclusion;
 
-initializations: ( initialization '\n')+ ;
+initializations: ( initialization )+ (conclusion)*;
 
 initialization: 'String' Variable_name asnmt_op Str
               | 'int' Variable_name asnmt_op Int
@@ -12,7 +12,7 @@ initialization: 'String' Variable_name asnmt_op Str
               | 'int' Variable_name asnmt_op terinary
               | 'Str' Variable_name asnmt_op terinary;
 
-computations: ( computation )+;
+computations: ( computation )+  | '{' computations '}';
 
 computation: conditionals | loops | assignment | conclusion;
 
@@ -27,12 +27,16 @@ print_statement: 'print' Variable_name
 conditionals: if_condition
             | if_then_else;
 
-if_condition: 'if' boolexpr ':' '\n' computations
-            | 'if' boolexpr ':' '\n' computations '\n' 'else' ':' '\n' computations
-            | 'if' boolexpr ':' '\n' computations '\n' elif_part '\n' 'else' ':' '\n' computations ;
+if_condition: 'if' boolexpr ':' '\n' computations  elif_part 'else' ':' '\n' computations
+            | 'if' boolexpr ':' '\n' computations  'else' ':' '\n' computations
+            | 'if' boolexpr ':' '\n' computations;
+
+//if_part: 'if' boolexpr ':' computations;
 
 elif_part: elif_part '\n' elif_part
-          | 'elif' ':' '\n' computations ;
+          | 'elif' boolexpr ':' computations ;
+
+//else_part: 'else' ':' computations;
 
 if_then_else: 'if' boolexpr 'then' computations 'else' computations ;
 
@@ -51,12 +55,12 @@ loops: for_loop
      | while_loop
      | for_inrange ;
 
-for_loop: 'for' '(' initialization ';' arthexpr ';' arthexpr ')' '\n' '\t' computations ;
+for_loop: 'for' '(' initialization ';' boolexpr ';' assignment ')' ':' computations ;
 
 for_inrange: 'for' Variable_name 'in' 'range' '(' Int ',' Int ')' ':' computations
             | 'for' Variable_name 'in' 'range' '(' Variable_name ',' Variable_name ')' ':' computations;
 
-while_loop: 'while' boolexpr ':' '\n' '\t' computations ;
+while_loop: 'while' boolexpr ':' computations ;
 
 expression: boolexpr
             | arthexpr ;
