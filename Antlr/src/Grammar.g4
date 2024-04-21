@@ -1,27 +1,31 @@
 grammar Grammar;
 
-program : initializations '\n' conclusion* '\n' computations '\n' conclusion* ;
+program : initializations   conclusion*   computations   conclusion* ;
 
-initializations: initialization '\n' initializations ;
+initializations: ( initialization '\n')+ ;
 
-initialization: variable_type variable_name asnmt_op expression
-              | variable_type variable_name ;
+initialization: 'String' Variable_name asnmt_op Str
+              | 'int' Variable_name asnmt_op Int
+              | 'int' Variable_name asnmt_op arthexpr
+              | 'bool' Variable_name asnmt_op boolexpr
+              | 'var' Variable_name
+              | 'int' Variable_name asnmt_op terinary
+              | 'Str' Variable_name asnmt_op terinary;
 
-computations: computation '\n' computations ;
+computations: ( computation )+;
 
-computation: conditionals | loops | assignment ;
+computation: conditionals | loops | assignment | conclusion;
 
-conclusion: print_statement ;
+conclusion: print_statement | '\n';
 
-print_statement: 'print' variable_name
-                | 'print' '(' variable_name ')'
-                | 'print' '(' '"' str '"' ')'
-                | 'print' '(' int ')'
+print_statement: 'print' Variable_name
+                | 'print' '(' Variable_name ')'
+                | 'print' '(' Str ')'
+                | 'print' '(' Int ')'
                 | 'print' '(' boolexpr ')' ;
 
 conditionals: if_condition
-            | if_then_else
-            | terinary ;
+            | if_then_else;
 
 if_condition: 'if' boolexpr ':' '\n' computations
             | 'if' boolexpr ':' '\n' computations '\n' 'else' ':' '\n' computations
@@ -32,9 +36,16 @@ elif_part: elif_part '\n' elif_part
 
 if_then_else: 'if' boolexpr 'then' computations 'else' computations ;
 
-terinary: boolexpr '?' arthexpr ':' arthexpr ;
+terinary: boolexpr '?' arthexpr ':' arthexpr
+        | boolexpr '?' Str ':' Str
+        | boolexpr '?' Variable_name ':' Variable_name;
 
-assignment: variable_name asnmt_op arthexpr ;
+assignment: Variable_name asnmt_op expression
+          | Variable_name asnmt_op terinary
+          | arthexpr '++'
+          | '++' arthexpr
+          | arthexpr '--'
+          | '--' arthexpr;
 
 loops: for_loop
      | while_loop
@@ -42,8 +53,8 @@ loops: for_loop
 
 for_loop: 'for' '(' initialization ';' arthexpr ';' arthexpr ')' '\n' '\t' computations ;
 
-for_inrange: 'for' variable_name 'in' 'range' '(' int ',' int ')'
-            | 'for' variable_name 'in' 'range' '(' variable_name ',' variable_name ')' ;
+for_inrange: 'for' Variable_name 'in' 'range' '(' Int ',' Int ')' ':' computations
+            | 'for' Variable_name 'in' 'range' '(' Variable_name ',' Variable_name ')' ':' computations;
 
 while_loop: 'while' boolexpr ':' '\n' '\t' computations ;
 
@@ -67,16 +78,20 @@ arthexpr: arthexpr '+' arthexpr
         | arthexpr '-' arthexpr
         | arthexpr '*' arthexpr
         | arthexpr '/' arthexpr
-        | arthexpr '++'
-        | arthexpr '--'
-        | '++' arthexpr
-        | '--' arthexpr
-        | variable_name
-        | int ;
+        | Variable_name
+        | Int ;
 
 
-variable_type: str | int ;
 asnmt_op: '=' ;
-variable_name: [a-zA-Z][a-zA-Z0-9]* ;
-str: [a-zA-Z][a-zA-Z]*;
-int: [0-9]+;
+Variable_name: [a-zA-Z][a-zA-Z0-9]* ;
+Str: '"' (~["])* '"'
+    | [a-zA-z]+;
+Int: [0-9]+;
+WHITESPACE: [ \t\n\r]+ -> skip;
+COMMENT
+    :  '#' ~[\r\n]* -> skip
+    ;
+
+LINE_COMMENT
+    :   '//' ~[\r\n]* -> skip
+    ;
