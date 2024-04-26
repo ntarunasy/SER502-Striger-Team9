@@ -1,0 +1,10 @@
+int x=5
+int y=20
+int z = 23
+i=4
+
+while(i<x):
+    print(x)
+    i=i+1
+
+print(23314)
