@@ -136,10 +136,4 @@ public interface StrigerVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArthexpr(StrigerParser.ArthexprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StrigerParser#asnmt_op}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAsnmt_op(StrigerParser.Asnmt_opContext ctx);
 }

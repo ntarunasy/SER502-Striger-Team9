@@ -217,14 +217,4 @@ public interface StrigerListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArthexpr(StrigerParser.ArthexprContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StrigerParser#asnmt_op}.
-	 * @param ctx the parse tree
-	 */
-	void enterAsnmt_op(StrigerParser.Asnmt_opContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StrigerParser#asnmt_op}.
-	 * @param ctx the parse tree
-	 */
-	void exitAsnmt_op(StrigerParser.Asnmt_opContext ctx);
 }

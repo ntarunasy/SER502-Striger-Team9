@@ -1,6 +1,6 @@
 grammar Striger;
 
-program : initializations   conclusion*   computations   conclusion* | conclusion;
+program : initializations conclusion*   computations  conclusion* | conclusion;
 
 initializations: ( initialization (conclusion)*)+ ;
 
@@ -17,7 +17,7 @@ computations: ( computation )+  | '{' computations '}';
 
 computation: conditionals | loops | assignment | conclusion;
 
-conclusion: print_statement | '\n';
+conclusion: print_statement | ';';
 
 print_statement: 'print' Variable_name
                 | 'print' '(' Variable_name ')'
@@ -31,14 +31,12 @@ print_statement: 'print' Variable_name
 conditionals: if_condition
             | if_then_else;
 
-if_condition: 'if' boolexpr ':'  computations  (elif_part)* (else_part)?;
+if_condition: 'if' boolexpr '{'  computations '}'  (elif_part)* (else_part)?;
 
-//if_part: 'if' boolexpr ':' computations;
 
-elif_part: 'elif' boolexpr ':' computations ;
+elif_part: 'elif' boolexpr '{' computations '}';
 
-else_part: 'else' ':' computations;
-//else_part: 'else' ':' computations;
+else_part: 'else' '{' computations '}';
 
 if_then_else: 'if' boolexpr 'then' computations 'else' computations ;
 
@@ -48,21 +46,21 @@ terinary: boolexpr '?' arthexpr ':' arthexpr
 
 assignment: Variable_name '=' expression
           | Variable_name '=' terinary
-          | arthexpr '++'
-          | '++' arthexpr
-          | arthexpr '--'
-          | '--' arthexpr;
+          | Variable_name '++'
+          | '++' Variable_name
+          | Variable_name '--'
+          | '--' Variable_name;
 
 loops: for_loop
      | while_loop
      | for_inrange ;
 
-for_loop: 'for' '(' initialization ';' boolexpr ';' assignment ')' ':' computations ;
+for_loop: 'for' '(' initialization ';' boolexpr ';' assignment ')' '{' computations '}';
 
-for_inrange: 'for' Variable_name 'in' 'range' '(' Int ',' Int ')' ':' computations
-            | 'for' Variable_name 'in' 'range' '(' Variable_name ',' Variable_name ')' ':' computations;
+for_inrange: 'for' Variable_name 'in' 'range' '(' Int ',' Int ')' '{' computations '}'
+            | 'for' Variable_name 'in' 'range' '(' Variable_name ',' Variable_name ')' '{' computations '}';
 
-while_loop: 'while' boolexpr ':' computations ;
+while_loop: 'while' boolexpr '{' computations '}';
 
 expression: boolexpr
             | arthexpr ;

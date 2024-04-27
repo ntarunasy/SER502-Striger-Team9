@@ -1,0 +1,6 @@
+int x=5;
+int y=20;
+int z=x+x*y-y/1;
+int w= 1>2? 1:2 ;
+print(z);
+print(w);

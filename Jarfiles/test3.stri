@@ -1,0 +1,16 @@
+int x=2;
+print("For");
+for(int x=0;x<5;x++){
+    print(x);
+}
+print("in range");
+for i in range(2,5){
+    print(i);
+}
+print("while");
+while(i<7){
+    print(i);
+    i++;
+}
+print("variable");
+print(x);

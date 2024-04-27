@@ -264,18 +264,6 @@ public class StrigerBaseListener implements StrigerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArthexpr(StrigerParser.ArthexprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAsnmt_op(StrigerParser.Asnmt_opContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAsnmt_op(StrigerParser.Asnmt_opContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

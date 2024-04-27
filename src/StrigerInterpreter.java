@@ -1,7 +1,6 @@
 package src;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class StrigerInterpreter extends StrigerBaseVisitor {
     static HashMap<String, Map<String, String>> store = new HashMap<>();
@@ -126,35 +125,32 @@ public class StrigerInterpreter extends StrigerBaseVisitor {
 
     @Override
     public Object visitIf_condition(StrigerParser.If_conditionContext ctx) {
-        String condition = ctx.boolexpr().getText();
+        String condition = ctx.getChild(1).getText();
         boolean condValue = evaluateBooleanExpression(condition);
         if (condValue) {
-           visitComputations(ctx.computations());
-        }
-        if (ctx.elif_part() != null){
-            return super.visitElif_part(ctx.elif_part());
-        }
-        if (ctx.else_part() != null) {
-            return super.visitChildren(ctx.else_part());
+            return visitChildren(ctx.computations());
+        } else if (ctx.elif_part() != null) {
+            List<StrigerParser.Elif_partContext> elifParts = ctx.elif_part();
+            for (StrigerParser.Elif_partContext elifPart : elifParts) {
+                condition = elifPart.boolexpr().getText();
+                condValue = evaluateBooleanExpression(condition);
+                if (condValue) {
+                     return visitChildren(elifPart.computations());
+                }
+            }
+        } else if (ctx.else_part() != null) {
+            List<StrigerParser.Elif_partContext> elifParts = ctx.elif_part();
+            for (StrigerParser.Elif_partContext elifPart : elifParts) {
+                condition = elifPart.boolexpr().getText();
+                condValue = evaluateBooleanExpression(condition);
+                if (condValue) {
+                    return visitChildren(elifPart.computations());
+                }
+            }
+            return visitChildren(ctx.else_part().computations());
         }
         return super.visitChildren(ctx);
     }
-
-    @Override
-    public Object visitElif_part(StrigerParser.Elif_partContext ctx) {
-        String condition = ctx.boolexpr().getText();
-        boolean condValue = evaluateBooleanExpression(condition);
-        if (condValue) {
-            visitComputations(ctx.computations());
-        }
-        return super.visitChildren(ctx);
-    }
-
-    @Override public Object visitElse_part(StrigerParser.Else_partContext ctx) {
-        visitComputations(ctx.computations());
-        return super.visitChildren(ctx);
-    }
-
     @Override
     public Object visitIf_then_else(StrigerParser.If_then_elseContext ctx) {
         String condition = ctx.getChild(1).getText();
@@ -193,39 +189,37 @@ public class StrigerInterpreter extends StrigerBaseVisitor {
     @Override
     public Object visitAssignment(StrigerParser.AssignmentContext ctx) {
         String varName = ctx.Variable_name().getText();
-        String value;
-        if (ctx.expression() != null){
-            if (ctx.expression().boolexpr() != null){
-                value = String.valueOf(evaluateBooleanExpression(ctx.expression().boolexpr().getText()));
-            } else {
-                value = String.valueOf(evaluateArithmeticExpression(ctx.expression().boolexpr().getText()));
+        if (ctx.getChildCount()==3) {
+            String value = "";
+            if (ctx.expression() != null) {
+                if (ctx.expression().boolexpr() != null) {
+                    value = String.valueOf(evaluateBooleanExpression(ctx.expression().boolexpr().getText()));
+                } else {
+                    value = String.valueOf(evaluateArithmeticExpression(ctx.expression().arthexpr().getText()));
+                }
+            } else if (ctx.terinary() != null) {
+                value = visitTerinary((StrigerParser.TerinaryContext) ctx.terinary()).toString();
             }
-        }
-        else if (ctx.getChild(2) instanceof StrigerParser.TerinaryContext) {
-            value = visitTerinary((StrigerParser.TerinaryContext) ctx.terinary()).toString();
-        }
-        else {
-            String flag = (ctx.arthexpr().getText());
-            if (ctx.getChild(1).getText().equals("++")){
-                flag = flag + " + 1";
-            } else if (ctx.getChild(1).getText().equals("--")) {
-                flag = flag + " + 1";
-            } else if (ctx.getChild(1).getText().equals("--")) {
-                flag = "1 - " + flag;
-            } else {
-                flag = "1 + " + flag;
+            if (store.get("Integer").containsKey(varName)) {
+                store.get("Integer").put(varName, value);
+            } else if (store.get("String").containsKey(varName)) {
+                store.get("String").put(varName, value);
+            } else if (store.get("Boolean").containsKey(varName)) {
+                store.get("Boolean").put(varName, value);
             }
-            value = flag;
+        } else if (ctx.getChildCount()==2) {
+            int x = 0;
+            if (ctx.getChild(1).getText().equals("++")) {
+                x = Integer.parseInt(store.get("Integer").get(varName)) + 1;
+            } else if (ctx.getChild(1).getText().equals("--")) {
+                x = Integer.parseInt(store.get("Integer").get(varName)) - 1;
+            } else if (ctx.getChild(0).getText().equals("--")) {
+                x = 1 - Integer.parseInt(store.get("Integer").get(varName));
+            } else {
+                x = 1 + Integer.parseInt(store.get("Integer").get(varName));
+            }
+            store.get("Integer").put(ctx.Variable_name().getText(), String.valueOf(x));
         }
-
-        if (store.get("Integer").containsKey(varName)) {
-            store.get("Integer").put(varName, value);
-        } else if (store.get("String").containsKey(varName)) {
-            store.get("String").put(varName, value);
-        } else if (store.get("Boolean").containsKey(varName)) {
-            store.get("Boolean").put(varName, value);
-        }
-
         return super.visitChildren(ctx);
     }
 
@@ -236,60 +230,40 @@ public class StrigerInterpreter extends StrigerBaseVisitor {
 
     @Override
     public Object visitFor_loop(StrigerParser.For_loopContext ctx) {
-        String initialization = ctx.getChild(2).getText();
-        String condition = ctx.getChild(4).getText();
-        String assignment = ctx.getChild(6).getText();
-
-        if (initialization.contains("++")) {
-            String varName = initialization.substring(0, initialization.indexOf("++"));
-            int varValue = Integer.parseInt(store.get("Integer").get(varName));
-            store.get("Integer").put(varName, Integer.toString(varValue + 1));
-        } else if (initialization.contains("--")) {
-            String varName = initialization.substring(0, initialization.indexOf("--"));
-            int varValue = Integer.parseInt(store.get("Integer").get(varName));
-            store.get("Integer").put(varName, Integer.toString(varValue - 1));
+        for(visit(ctx.initialization());(boolean) visit(ctx.boolexpr());visit(ctx.assignment())){
+            visit(ctx.computations());
         }
-
-        while (evaluateBooleanExpression(condition)) {
-            super.visit(ctx.getChild(7));
-
-            if (assignment.contains("++")) {
-                String varName = assignment.substring(0, assignment.indexOf("++"));
-                int varValue = Integer.parseInt(store.get("Integer").get(varName));
-                store.get("Integer").put(varName, Integer.toString(varValue + 1));
-            } else if (assignment.contains("--")) {
-                String varName = assignment.substring(0, assignment.indexOf("--"));
-                int varValue = Integer.parseInt(store.get("Integer").get(varName));
-                store.get("Integer").put(varName, Integer.toString(varValue - 1));
-            }
-        }
-
-        return super.visitChildren(ctx);
+        return 0;
     }
 
     @Override
     public Object visitFor_inrange(StrigerParser.For_inrangeContext ctx) {
-        String varName = ctx.getChild(1).getText();
-        String start = ctx.getChild(5).getText();
-        String end = ctx.getChild(7).getText();
+        int start;
+        int end;
 
-        for (int i = Integer.parseInt(start); i <= Integer.parseInt(end); i++) {
+        if (ctx.Int()!= null){
+            start = Integer.parseInt(ctx.Int(0).getText());
+            end = Integer.parseInt(ctx.Int(1).getText());
+        } else {
+            start = Integer.parseInt(store.get("Integer").get(ctx.Variable_name(1).getText()));
+            end = Integer.parseInt(store.get("Integer").get(ctx.Variable_name(2).getText()));
+        }
+        String varName = ctx.Variable_name(0).getText();
+        for (int i = start; i <= end; i++) {
             store.get("Integer").put(varName, Integer.toString(i));
-            super.visit(ctx.getChild(6));
+            visit(ctx.computations());
         }
 
-        return super.visitChildren(ctx);
+        return 0;
     }
 
     @Override
     public Object visitWhile_loop(StrigerParser.While_loopContext ctx) {
         String condition = ctx.getChild(1).getText();
-
         while (evaluateBooleanExpression(condition)) {
             super.visit(ctx.getChild(3));
         }
-
-        return super.visitChildren(ctx);
+        return 0;
     }
 
     @Override
@@ -299,76 +273,54 @@ public class StrigerInterpreter extends StrigerBaseVisitor {
 
     @Override
     public Object visitBoolexpr(StrigerParser.BoolexprContext ctx) {
-        if (ctx.getChildCount() == 1) {
-            return evaluateBooleanExpression(ctx.getChild(0).getText());
-        } else if (ctx.getChildCount() == 2) {
-            return !evaluateBooleanExpression(ctx.getChild(1).getText());
-        } else if (ctx.getChild(2) instanceof StrigerParser.BoolexprContext) {
-            return evaluateBooleanExpression(ctx.getChild(2).getText());
-        }
-
-        String operator = ctx.getChild(1).getText();
-        String left = ctx.getChild(0).getText();
-        String right = ctx.getChild(2).getText();
-
-        if (operator.equals("==")) {
-            return evaluateArithmeticExpression(left) == (evaluateArithmeticExpression(right));
-        } else if (operator.equals("!=")) {
-            return evaluateArithmeticExpression(left) != (evaluateArithmeticExpression(right));
-        } else if (operator.equals(">")) {
-            return evaluateArithmeticExpression(left) > evaluateArithmeticExpression(right);
-        } else if (operator.equals(">=")) {
-            return evaluateArithmeticExpression(left) >= evaluateArithmeticExpression(right);
-        } else if (operator.equals("<")) {
-            return evaluateArithmeticExpression(left) < evaluateArithmeticExpression(right);
-        } else if (operator.equals("<=")) {
-            return evaluateArithmeticExpression(left) <= evaluateArithmeticExpression(right);
-        }
-
-        return super.visitChildren(ctx);
+        String x= ctx.getText();
+        return evaluateBooleanExpression(x);
     }
 
     @Override
     public Object visitArthexpr(StrigerParser.ArthexprContext ctx) {
-        if (ctx.getChildCount() == 1) {
-            if (ctx.getChild(0) instanceof StrigerParser.ArthexprContext) {
-                String varName = ctx.getChild(0).getText();
-                if (store.get("Integer").containsKey(varName)) {
-                    return store.get("Integer").get(varName);
-                } else if (store.get("String").containsKey(varName)) {
-                    return store.get("String").get(varName);
-                } else if (store.get("Boolean").containsKey(varName)) {
-                    return store.get("Boolean").get(varName);
-                }
-            } else {
-                return Integer.parseInt(ctx.getChild(0).getText());
-            }
-        }
-
-        String operator = ctx.getChild(1).getText();
-        String left = ctx.getChild(0).getText();
-        String right = ctx.getChild(2).getText();
-
-        if (operator.equals("+")) {
-            return evaluateArithmeticExpression(left) + evaluateArithmeticExpression(right);
-        } else if (operator.equals("-")) {
-            return evaluateArithmeticExpression(left) - evaluateArithmeticExpression(right);
-        } else if (operator.equals("*")) {
-            return evaluateArithmeticExpression(left) * evaluateArithmeticExpression(right);
-        } else if (operator.equals("/")) {
-            return evaluateArithmeticExpression(left) / evaluateArithmeticExpression(right);
-        }
-        return super.visitChildren(ctx);
+        String x = ctx.getText();
+        return evaluateArithmeticExpression(x);
+//        return super.visitChildren(ctx);
     }
+
 
     private boolean evaluateBooleanExpression(String expr) {
         if (expr.equals("true")) {
             return true;
         } else if (expr.equals("false")) {
             return false;
+        }  else if (expr.matches("\\w+")) {
+            String variable = expr;
+            if (!store.get("Boolean").containsKey(variable)) {
+                throw new IllegalArgumentException("Variable not found: " + variable);
+            }
+            return Boolean.parseBoolean(store.get("Boolean").get(variable));
+        } else if (expr.startsWith("(") && expr.endsWith(")")) {
+            return evaluateBooleanExpression(expr.substring(1, expr.length() - 1));
+        } else if (expr.contains("and")) {
+            String[] parts = expr.split("and",2);
+            return evaluateBooleanExpression(parts[0]) && evaluateBooleanExpression(parts[1]);
+        } else if (expr.contains("or")) {
+            String[] parts = expr.split("or",2);
+            return evaluateBooleanExpression(parts[0]) || evaluateBooleanExpression(parts[1]);
+        } else if (expr.contains("<")) {
+            String[] parts = expr.split("<",2);
+            return evaluateArithmeticExpression(parts[0]) < evaluateArithmeticExpression(parts[1]);
+        } else if (expr.contains("<=")) {
+            String[] parts = expr.split("<=",2);
+            return evaluateArithmeticExpression(parts[0]) <= evaluateArithmeticExpression(parts[1]);
+        } else if (expr.contains(">=")) {
+            String[] parts = expr.split(">=",2);
+            return evaluateArithmeticExpression(parts[0]) >= evaluateArithmeticExpression(parts[1]);
+        } else if (expr.contains(">")) {
+            String[] parts = expr.split(">",2);
+            return evaluateArithmeticExpression(parts[0]) > evaluateArithmeticExpression(parts[1]);
+        } else if (expr.contains("!=")) {
+            String[] parts = expr.split("!=",2);
+            return evaluateArithmeticExpression(parts[0]) != evaluateArithmeticExpression(parts[1]);
         }
-
-        return evaluateArithmeticExpression(expr) == (1);
+        return false;
     }
 
     private int evaluateArithmeticExpression(String expr) {
@@ -392,16 +344,16 @@ public class StrigerInterpreter extends StrigerBaseVisitor {
             return evaluateArithmeticExpression(expr.substring(1, expr.length() - 1));
         }
         if (expr.contains("+")) {
-            String[] parts = expr.split("\\+");
+            String[] parts = expr.split("\\+",2);
             return evaluateArithmeticExpression(parts[0]) + evaluateArithmeticExpression(parts[1]);
         } else if (expr.contains("-")) {
-            String[] parts = expr.split("-");
+            String[] parts = expr.split("-",2);
             return evaluateArithmeticExpression(parts[0]) - evaluateArithmeticExpression(parts[1]);
         } else if (expr.contains("*")) {
-            String[] parts = expr.split("\\*");
+            String[] parts = expr.split("\\*",2);
             return evaluateArithmeticExpression(parts[0]) * evaluateArithmeticExpression(parts[1]);
         } else if (expr.contains("/")) {
-            String[] parts = expr.split("/");
+            String[] parts = expr.split("/",2);
             int divisor = evaluateArithmeticExpression(parts[1]);
             if (divisor == 0) {
                 throw new ArithmeticException("Division by zero");
