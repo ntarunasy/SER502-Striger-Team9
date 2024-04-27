@@ -1,12 +1,10 @@
 int x=5;
 int y=20;
 int z=0;
-if x>y{
+if (x>y or 1>2){
     z=x;
-    print(z);
-} elif x<15{
+} elif (x<15 and 1>2){
     z=y;
-    print(z);
 } else {
     z=21;
 }

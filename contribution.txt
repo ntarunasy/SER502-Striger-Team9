@@ -1,7 +1,7 @@
 Sri Vikas Ganugu: Design and Grammar of the language
 Venkata Sai Tarun Nuka:Github Repository
-Nitin Surya Moturu: Selection of Interpretor and Parser
+Nitin Surya Moturu: Selection of Interpreter and Parser
 Final Plan:
 Venkata Sai Tarun Nuka:Code
 Nitin Surya Moturu:Youtube Video Editor
-Sri Vikas Ganugu:Narrator in Youtube Video
+Sri Vikas Ganugu:Narrator in Youtube Video, Code
