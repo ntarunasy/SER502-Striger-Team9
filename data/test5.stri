@@ -1,0 +1,24 @@
+int x=0;
+int y=10;
+int z=0;
+int r=6;
+int counter=0;
+{
+    while(z!=r){
+        counter++;
+        z=x+y;
+        z=z/2;
+        print("z");
+        print(z);
+        if (r>z){
+            x=z;
+        }
+        elif (r<z){
+            y=z;
+        }
+        else{
+            print("counter");
+            print(counter);
+        }
+    }
+}

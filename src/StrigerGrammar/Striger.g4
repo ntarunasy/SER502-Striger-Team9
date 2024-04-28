@@ -78,10 +78,10 @@ boolexpr: 'true'
         | arthexpr '!=' arthexpr
         | '(' boolexpr ')' ;
 
-arthexpr: arthexpr '+' arthexpr
-        | arthexpr '-' arthexpr
+arthexpr: arthexpr '/' arthexpr
         | arthexpr '*' arthexpr
-        | arthexpr '/' arthexpr
+        | arthexpr '+' arthexpr
+        | arthexpr '-' arthexpr
         | Variable_name
         | Int
         | '(' arthexpr ')' ;

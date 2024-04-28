@@ -1,4 +1,4 @@
-// Generated from C:/Users/91807/Desktop/GitHub/SER502-Striger-Team9/StrigerGrammar/Striger.g4 by ANTLR 4.13.1
+// Generated from C:/Users/91807/Desktop/GitHub/SER502-Striger-Team9/src.StrigerGrammar/Striger.g4 by ANTLR 4.13.1
 package src;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

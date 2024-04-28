@@ -1,0 +1,8 @@
+int x = 5;
+int z = 0;
+while (x>0){
+    z = x*5;
+    print(z)
+    x--;
+}
+print(x)
