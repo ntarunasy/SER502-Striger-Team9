@@ -30,7 +30,8 @@ Directions to build and run language:
 - Move the project JAR file from JarFiles to data for easier execution and run the language(steps included above(Directions to run language)).
 
 YouTube Video:
-- Striger
+- SER502-Striger-Team9
+- https://youtu.be/LUDFisDjzsg
 
 Batch Script file should be run from Command Prompt directly using the command:
 cmd.bat (From the project directory).
