@@ -1,7 +1,27 @@
-Sri Vikas Ganugu: Design and Grammar of the language
-Venkata Sai Tarun Nuka:Github Repository
-Nitin Surya Moturu: Selection of Interpreter and Parser
-Final Plan:
-Venkata Sai Tarun Nuka:Code
-Nitin Surya Moturu:Youtube Video Editor
-Sri Vikas Ganugu:Narrator in Youtube Video, Code
+SER 502
+
+Team 9
+
+Sri Vikas Ganugu: 
+	-Provided guidance on integrating Antlr 4.13.1 with IntelliJ Idea.
+	-Implemented file handling features in Main.java.
+	-Interpreter design and JAR file generation.
+	-Assisted in creating the JarFiles package and moving the project JAR file.
+	-Tested the generated parse tree is coherent with Grammar.
+	-Participated in code review sessions.
+
+Venkata Sai Tarun Nuka: 
+	-Set up a Github repository for the project.
+	-Assisted in designing the grammar rules using Antlr 4.13.1.
+	-Configured Antlr Intellij Plugin for efficient grammar development.
+	-Implemented core functionalities in Main.java.
+	-Participated in code review sessions.
+	-Contributed to writing the batch script file for easy execution.
+
+Nitin Surya Moturu: 
+	-Implemented Grammar on ANTLR.
+	-Generated ANTLR Files.
+	-Created and executed test cases for language validation
+	-Participated in code review sessions.
+	-Assisted in documenting the directions to build and run the language.
+	-Helped in creating the YouTube video.
